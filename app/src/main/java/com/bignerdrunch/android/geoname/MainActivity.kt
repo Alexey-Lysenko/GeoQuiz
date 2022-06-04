@@ -2,27 +2,26 @@ package com.bignerdrunch.android.geoname
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
 
-    private val questionBank = listOf<Question>(Question(R.string.question_australia,true),
-                                                Question(R.string.question_oceans,true),
-                                                Question(R.string.question_mideast,false),
-                                                Question(R.string.question_africa,false),
-                                                Question(R.string.question_americas,true),
-                                                Question(R.string.question_asia,true)
+    private val questionBank = listOf(Question(R.string.question_australia,true),
+                                      Question(R.string.question_oceans,true),
+                                      Question(R.string.question_mideast,false),
+                                      Question(R.string.question_africa,false),
+                                      Question(R.string.question_americas,true),
+                                      Question(R.string.question_asia,true)
     )
     private var currentIndex = 0
     private var prevIndex = 0
     private lateinit var trueButton:  Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
-    private lateinit var prevButton: Button
+    private lateinit var nextButton: ImageButton
+    private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
 
     private fun updateQuestion(){
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
-        questionTextView = findViewById<TextView?>(R.id.question_text_view)
+        questionTextView = findViewById(R.id.question_text_view)
 
         trueButton.setOnClickListener {checkAnswer(true) }
 
