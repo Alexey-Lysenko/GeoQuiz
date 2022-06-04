@@ -10,6 +10,7 @@
 
     <string name="false_button">FALSE</string>
     <string name="true_button">TRUE</string>
+    <string name="prev_button">PREV</string>
     <string name="next_button">NEXT</string>
 
     <string name="correct_toast">CORRECT!</string>

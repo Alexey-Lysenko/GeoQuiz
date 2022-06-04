@@ -18,9 +18,11 @@ class MainActivity : AppCompatActivity() {
                                                 Question(R.string.question_asia,true)
     )
     private var currentIndex = 0
+    private var prevIndex = 0
     private lateinit var trueButton:  Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: Button
+    private lateinit var prevButton: Button
     private lateinit var questionTextView: TextView
 
     private fun updateQuestion(){
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById<TextView?>(R.id.question_text_view)
 
         trueButton.setOnClickListener {checkAnswer(true) }
@@ -51,10 +54,16 @@ class MainActivity : AppCompatActivity() {
         falseButton.setOnClickListener {checkAnswer(false)}
 
         nextButton.setOnClickListener {
+            prevIndex = currentIndex
             currentIndex =(currentIndex + 1) % questionBank.size
             updateQuestion()
         }
         updateQuestion()
+
+        prevButton.setOnClickListener {
+            currentIndex = prevIndex
+            updateQuestion()
+        }
         questionTextView.setOnClickListener { nextButton.callOnClick() }
 
 
