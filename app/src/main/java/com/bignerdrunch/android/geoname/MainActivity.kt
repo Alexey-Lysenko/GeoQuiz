@@ -44,18 +44,21 @@ class MainActivity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
-        questionTextView = findViewById(R.id.question_text_view)
+        questionTextView = findViewById<TextView?>(R.id.question_text_view)
 
         trueButton.setOnClickListener {checkAnswer(true) }
 
         falseButton.setOnClickListener {checkAnswer(false)}
 
-        nextButton.setOnClickListener { currentIndex =(currentIndex + 1) % questionBank.size
+        nextButton.setOnClickListener {
+            currentIndex =(currentIndex + 1) % questionBank.size
             updateQuestion()
         }
         updateQuestion()
+        questionTextView.setOnClickListener { nextButton.callOnClick() }
+
+
+
     }
-
-
 }
 
