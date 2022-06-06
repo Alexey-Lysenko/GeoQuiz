@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     )
     private var currentIndex = 0
     private var prevIndex = 0
+    private var correctAnswerCount = 0
     private lateinit var trueButton:  Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: ImageButton
@@ -33,12 +34,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAnswer(userAnswer: Boolean){
         val correctAnswer = questionBank[currentIndex].answer
+        if (userAnswer == correctAnswer) correctAnswerCount++
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
+        if (currentIndex == questionBank.size-1) {
+            Toast.makeText(this, "${(correctAnswerCount.toDouble() % currentIndex.toDouble())*10}%",
+                Toast.LENGTH_LONG).show()
+            correctAnswerCount = 0
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,14 +58,24 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
 
-        trueButton.setOnClickListener {checkAnswer(true) }
+        trueButton.setOnClickListener {
+            checkAnswer(true)
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+        }
 
-        falseButton.setOnClickListener {checkAnswer(false)}
+        falseButton.setOnClickListener {
+            checkAnswer(false)
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+        }
 
         nextButton.setOnClickListener {
             prevIndex = currentIndex
             currentIndex =(currentIndex + 1) % questionBank.size
             updateQuestion()
+            trueButton.isEnabled = true
+            falseButton.isEnabled = true
         }
         updateQuestion()
 
@@ -66,7 +83,11 @@ class MainActivity : AppCompatActivity() {
             currentIndex = prevIndex
             updateQuestion()
         }
-        questionTextView.setOnClickListener { nextButton.callOnClick() }
+        questionTextView.setOnClickListener {
+            nextButton.callOnClick()
+            trueButton.isEnabled = true
+            falseButton.isEnabled = true
+        }
     }
 
     override fun onStart() {
