@@ -7,18 +7,17 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
-    private val questionBank = listOf(Question(R.string.question_australia,true),
-                                      Question(R.string.question_oceans,true),
-                                      Question(R.string.question_mideast,false),
-                                      Question(R.string.question_africa,false),
-                                      Question(R.string.question_americas,true),
-                                      Question(R.string.question_asia,true)
-    )
-    private var currentIndex = 0
+
+    private val quizViewModel: QuizViewModel by lazy {
+        ViewModelProvider(this).get(QuizViewModel::class.java)
+    }
+
+
     private var prevIndex = 0
     private var correctAnswerCount = 0
     private lateinit var trueButton:  Button
@@ -28,12 +27,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var questionTextView: TextView
 
     private fun updateQuestion(){
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
     }
 
     private fun checkAnswer(userAnswer: Boolean){
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
         if (userAnswer == correctAnswer) correctAnswerCount++
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
@@ -41,8 +40,8 @@ class MainActivity : AppCompatActivity() {
             R.string.incorrect_toast
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
-        if (currentIndex == questionBank.size-1) {
-            Toast.makeText(this, "${(correctAnswerCount.toDouble() % currentIndex.toDouble())*10}%",
+        if (quizViewModel.currentIndex == quizViewModel.questionBank.size-1) {
+            Toast.makeText(this, "${(correctAnswerCount.toDouble() % quizViewModel.currentIndex.toDouble())*10}%",
                 Toast.LENGTH_LONG).show()
             correctAnswerCount = 0
         }
@@ -52,6 +51,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
+
+        val provider: ViewModelProvider = ViewModelProvider(this)
+        val quizViewModel = provider.get(QuizViewModel::class.java)
+        Log.d(TAG,"Got a QuizViewModel: $quizViewModel")
+
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
@@ -71,8 +75,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
-            prevIndex = currentIndex
-            currentIndex =(currentIndex + 1) % questionBank.size
+            prevIndex = quizViewModel.currentIndex
+            quizViewModel.moveToNext()
             updateQuestion()
             trueButton.isEnabled = true
             falseButton.isEnabled = true
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         updateQuestion()
 
         prevButton.setOnClickListener {
-            currentIndex = prevIndex
+            quizViewModel.currentIndex = prevIndex
             updateQuestion()
         }
         questionTextView.setOnClickListener {
