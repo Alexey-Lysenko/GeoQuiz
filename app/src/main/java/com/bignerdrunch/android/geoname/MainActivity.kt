@@ -17,9 +17,6 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this).get(QuizViewModel::class.java)
     }
 
-
-    private var prevIndex = 0
-    private var correctAnswerCount = 0
     private lateinit var trueButton:  Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: ImageButton
@@ -33,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAnswer(userAnswer: Boolean){
         val correctAnswer = quizViewModel.currentQuestionAnswer
-        if (userAnswer == correctAnswer) correctAnswerCount++
+        if (userAnswer == correctAnswer) quizViewModel.correctAnswerCount++
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
         } else {
@@ -41,20 +38,17 @@ class MainActivity : AppCompatActivity() {
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
         if (quizViewModel.currentIndex == quizViewModel.questionBank.size-1) {
-            Toast.makeText(this, "${(correctAnswerCount.toDouble() % quizViewModel.currentIndex.toDouble())*10}%",
+            Toast.makeText(this, "${
+                quizViewModel.correctAnswerCount.toDouble() / quizViewModel.questionBank.size.toDouble() *100
+            }%",
                 Toast.LENGTH_LONG).show()
-            correctAnswerCount = 0
+            quizViewModel.correctAnswerCount = 0
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG,"onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
-
-        val provider: ViewModelProvider = ViewModelProvider(this)
-        val quizViewModel = provider.get(QuizViewModel::class.java)
-        Log.d(TAG,"Got a QuizViewModel: $quizViewModel")
 
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
@@ -75,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
-            prevIndex = quizViewModel.currentIndex
+            quizViewModel.prevIndex = quizViewModel.currentIndex
             quizViewModel.moveToNext()
             updateQuestion()
             trueButton.isEnabled = true
@@ -84,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         updateQuestion()
 
         prevButton.setOnClickListener {
-            quizViewModel.currentIndex = prevIndex
+            quizViewModel.currentIndex = quizViewModel.prevIndex
             updateQuestion()
         }
         questionTextView.setOnClickListener {
@@ -92,36 +86,6 @@ class MainActivity : AppCompatActivity() {
             trueButton.isEnabled = true
             falseButton.isEnabled = true
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG,"onStart() called")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG,"onResume() called")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG,"onPause() called")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG,"onStop() called")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG,"onDestroy() called")
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.d(TAG,"onSaveInstanceState() called")
     }
 }
 

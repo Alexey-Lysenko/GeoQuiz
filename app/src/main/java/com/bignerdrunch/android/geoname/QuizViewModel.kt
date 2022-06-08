@@ -1,19 +1,9 @@
 package com.bignerdrunch.android.geoname
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 
-private const val TAG = "QuizViewModel"
 
 class QuizViewModel: ViewModel() {
-    init{
-        Log.d(TAG,"ViewModel instance created")
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d(TAG,"ViewModel instance about to be destroyed")
-    }
     val questionBank = listOf(Question(R.string.question_australia,true),
                               Question(R.string.question_oceans,true),
                               Question(R.string.question_mideast,false),
@@ -21,6 +11,8 @@ class QuizViewModel: ViewModel() {
                               Question(R.string.question_americas,true),
                               Question(R.string.question_asia,true)
     )
+    var prevIndex = 0
+    var correctAnswerCount = 0
     var currentIndex = 0
     val currentQuestionAnswer: Boolean
     get() = questionBank[currentIndex].answer
