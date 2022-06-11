@@ -1,5 +1,6 @@
 package com.bignerdrunch.android.geoname
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
+    private lateinit var cheatButton: Button
 
     private fun updateQuestion(){
         val questionTextResId = quizViewModel.currentQuestionText
@@ -38,9 +40,9 @@ class MainActivity : AppCompatActivity() {
             R.string.incorrect_toast
         }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
-        if (quizViewModel.currentIndex == quizViewModel.questionBank.size-1) {
+        if (quizViewModel.currentIndex == quizViewModel.questionBankSize-1) {
             Toast.makeText(this, "${
-                quizViewModel.correctAnswerCount.toDouble() / quizViewModel.questionBank.size.toDouble() *100
+                quizViewModel.correctAnswerCount.toDouble() / quizViewModel.questionBankSize.toDouble() *100
             }%",
                 Toast.LENGTH_LONG).show()
             quizViewModel.correctAnswerCount = 0
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
+        cheatButton = findViewById(R.id.cheat_button)
 
         trueButton.setOnClickListener {
             checkAnswer(true)
@@ -89,6 +92,12 @@ class MainActivity : AppCompatActivity() {
             nextButton.callOnClick()
             trueButton.isEnabled = true
             falseButton.isEnabled = true
+        }
+
+        cheatButton.setOnClickListener {
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity,answerIsTrue)
+            startActivity(intent)
         }
     }
 
