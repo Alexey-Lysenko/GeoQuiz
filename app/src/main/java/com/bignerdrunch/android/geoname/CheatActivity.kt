@@ -6,26 +6,29 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.bignerdrunch.android.geoname.databinding.ActivityCheatBinding
 
 private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdrunch.geoquiz.answer_is_true"
 private var answerIsTrue = false
 
 class CheatActivity : AppCompatActivity() {
-    lateinit var showAnswerButton: Button
-    lateinit var answerTextView: TextView
+
+    private lateinit var binding: ActivityCheatBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_cheat)
-        showAnswerButton = findViewById(R.id.show_answer_button)
-        answerTextView = findViewById(R.id.answer_text_view)
+
+        binding = ActivityCheatBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE,false)
 
-        showAnswerButton.setOnClickListener {
+        binding.showAnswerButton.setOnClickListener {
             val answerText = when {
                 answerIsTrue -> R.string.true_button
                 else -> R.string.false_button
             }
-            answerTextView.setText(answerText)
+            binding.answerTextView.setText(answerText)
         }
     }
 
@@ -37,3 +40,4 @@ class CheatActivity : AppCompatActivity() {
         }
     }
 }
+
