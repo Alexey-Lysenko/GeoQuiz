@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bignerdrunch.android.geoname.databinding.ActivityMainBinding
 
 private const val KEY_INDEX = "Question_index"
-private const val REQUEST_CODE_CHEAT = 0
+private const val ANSWER_FOR_CHEAT_ACTIVITY_CODE = "CHEAT_ACTIVITY_ANSWER"
 class MainActivity : AppCompatActivity() {
 
 
@@ -24,6 +24,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding:ActivityMainBinding
+
+    private val cheatActivityLouncher = registerForActivityResult(CheatActivity.Contract()){
+        binding.falseButton.isEnabled = !it
+        binding.trueButton.isEnabled = !it
+    }
 
     private fun updateQuestion(){
         val questionTextResId = quizViewModel.currentQuestionText
@@ -89,8 +94,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.cheatButton?.setOnClickListener {
-            val intent = CheatActivity.newIntent(this@MainActivity,quizViewModel.currentQuestionAnswer)
-            startActivity(intent)
+            cheatActivityLouncher.launch(quizViewModel.currentQuestionAnswer)
         }
     }
 
