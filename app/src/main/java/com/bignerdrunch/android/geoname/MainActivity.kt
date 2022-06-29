@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bignerdrunch.android.geoname.databinding.ActivityMainBinding
 
 private const val KEY_INDEX = "Question_index"
-private const val ANSWER_FOR_CHEAT_ACTIVITY_CODE = "CHEAT_ACTIVITY_ANSWER"
+
 class MainActivity : AppCompatActivity() {
 
 
