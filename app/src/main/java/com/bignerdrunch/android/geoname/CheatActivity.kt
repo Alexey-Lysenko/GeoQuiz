@@ -9,17 +9,20 @@ import com.bignerdrunch.android.geoname.databinding.ActivityCheatBinding
 
 class CheatActivity : AppCompatActivity() {
 
+    // declare binding
     private lateinit var binding: ActivityCheatBinding
 
     private val resultIntent = Intent()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // initial binding
         binding = ActivityCheatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.showAnswerButton.setOnClickListener {
-            val answerText = intent.getBooleanExtra(CORRECT_ANSWER,false)
+        binding.showAnswerButton.setOnClickListener{
+            val answerText = intent.getBooleanExtra(ANSWER,false)
             binding.answerTextView.text = answerText.toString()
             resultIntent.putExtra(WAS_CHECKED,true)
         }
@@ -29,9 +32,10 @@ class CheatActivity : AppCompatActivity() {
         setResult(BACK_BUTTON_WAS_PRESSED,resultIntent)
         super.onBackPressed()
     }
-    class Contract: ActivityResultContract<Boolean,Boolean>(){
-        override fun createIntent(context: Context, input: Boolean) = Intent(context,CheatActivity::class.java).apply {
-            putExtra(CheatActivity.CORRECT_ANSWER,input)
+
+    class Contract:ActivityResultContract<Boolean,Boolean>(){
+        override fun createIntent(context: Context, input: Boolean?) = Intent(context,CheatActivity::class.java).apply {
+            putExtra(CheatActivity.ANSWER,input)
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
@@ -40,9 +44,9 @@ class CheatActivity : AppCompatActivity() {
     }
 
     companion object{
-        private const val CORRECT_ANSWER = "CORRECT_ANSWER"
+        private const val ANSWER = "ANSWER"
         private const val WAS_CHECKED = "WAS_CHECKED"
-        private const val BACK_BUTTON_WAS_PRESSED = 1337
+        private const val BACK_BUTTON_WAS_PRESSED = 509
     }
 }
 

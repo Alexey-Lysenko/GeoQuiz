@@ -1,107 +1,117 @@
 package com.bignerdrunch.android.geoname
 
-import android.app.Activity
-import android.app.Instrumentation
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import com.bignerdrunch.android.geoname.databinding.ActivityMainBinding
-
-private const val KEY_INDEX = "Question_index"
 
 class MainActivity : AppCompatActivity() {
 
 
-    private val quizViewModel: QuizViewModel by lazy {
+    // creating a link between QuizViewModel and MainActivity
+    private val quizViewModel:QuizViewModel by lazy{
         ViewModelProvider(this).get(QuizViewModel::class.java)
     }
 
+    // declare binding
     private lateinit var binding:ActivityMainBinding
 
-    private val cheatActivityLouncher = registerForActivityResult(CheatActivity.Contract()){
-        binding.falseButton.isEnabled = !it
-        binding.trueButton.isEnabled = !it
-    }
-
-    private fun updateQuestion(){
-        val questionTextResId = quizViewModel.currentQuestionText
-        binding.questionTextView.setText(questionTextResId)
-    }
-
-    private fun checkAnswer(userAnswer: Boolean){
-        val correctAnswer = quizViewModel.currentQuestionAnswer
-        if (userAnswer == correctAnswer) quizViewModel.correctAnswerCount++
-        val messageResId = if (userAnswer == correctAnswer) {
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
+    private val cheatActivityLauncher = registerForActivityResult(CheatActivity.Contract()){
+        if (it){
+            quizViewModel.answersMap[quizViewModel.currentQuestionText] = it
         }
-        Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
-        if (quizViewModel.currentIndex == quizViewModel.questionBankSize-1) {
-            Toast.makeText(this, "${
-                quizViewModel.correctAnswerCount.toDouble() / quizViewModel.questionBankSize.toDouble() *100
-            }%",
-                Toast.LENGTH_LONG).show()
-            quizViewModel.correctAnswerCount = 0
-        }
+        isQuestionWasAnswered()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // initialize binding
-        binding = ActivityMainBinding.inflate(layoutInflater)
+
+        // initial binding
+        binding =ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val currentIndex = savedInstanceState?.getInt(KEY_INDEX,0) ?: 0
-        quizViewModel.currentIndex = currentIndex
-
-        binding.trueButton.setOnClickListener {
+        binding.trueButton.setOnClickListener{
             checkAnswer(true)
-            binding.trueButton.isEnabled = false
-            binding.falseButton.isEnabled = false
+            quizViewModel.answersMap.put(quizViewModel.currentQuestionText,true)
+            disablingButtons()
         }
 
-        binding.falseButton.setOnClickListener {
+        binding.falseButton.setOnClickListener{
             checkAnswer(false)
-            binding.trueButton.isEnabled = false
-            binding.falseButton.isEnabled = false
+            quizViewModel.answersMap.put(quizViewModel.currentQuestionText,true)
+            disablingButtons()
         }
 
-        binding.nextButton.setOnClickListener {
-            quizViewModel.prevIndex = quizViewModel.currentIndex
+        binding.previousButton.setOnClickListener{
+            if (quizViewModel.previousIndex < 0){
+                quizViewModel.previousIndex = -1
+                Toast.makeText(this,R.string.previous_button_problem,Toast.LENGTH_SHORT).show()
+            } else {
+                quizViewModel.currentIndex = quizViewModel.previousIndex
+                quizViewModel.previousIndex--
+                updateQuestion()
+                isQuestionWasAnswered()
+            }
+        }
+
+        binding.nextButton.setOnClickListener{
             quizViewModel.moveToNext()
             updateQuestion()
-            binding.trueButton.isEnabled = true
-            binding.falseButton.isEnabled = true
+            isQuestionWasAnswered()
         }
+
+        binding.cheatButton.setOnClickListener{
+            cheatActivityLauncher.launch(quizViewModel.currentQuestionAnswer)
+        }
+
         updateQuestion()
+        isQuestionWasAnswered()
+    }
 
-        binding.prevButton.setOnClickListener {
-            quizViewModel.currentIndex = quizViewModel.prevIndex
-            updateQuestion()
+    private fun checkAnswer(userAnswer: Boolean){
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        if (userAnswer == correctAnswer) quizViewModel.correctQuestionCount++
+        val message = if (userAnswer == correctAnswer){
+            R.string.correct_toast
+        } else{
+            R.string.incorrect_toast
         }
-        binding.questionTextView.setOnClickListener {
-            binding.nextButton.callOnClick()
-            binding.trueButton.isEnabled = true
-            binding.falseButton.isEnabled = true
-        }
+        Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
+        getResult()
+    }
 
-        binding.cheatButton?.setOnClickListener {
-            cheatActivityLouncher.launch(quizViewModel.currentQuestionAnswer)
+    private fun getResult(){
+        if (quizViewModel.currentIndex == quizViewModel.questionSize - 1){
+            Toast.makeText(this,"${
+                (quizViewModel.correctQuestionCount.toDouble() / quizViewModel.questionSize.toDouble()) * 100 }%",Toast.LENGTH_LONG
+            ).show()
+
+            quizViewModel.correctQuestionCount = 0
         }
     }
 
-    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putInt(KEY_INDEX,quizViewModel.currentIndex)
 
+    private fun updateQuestion(){
+        binding.questionTextView.setText(quizViewModel.currentQuestionText)
+    }
+
+    private fun disablingButtons(){
+        binding.trueButton.isEnabled = false
+        binding.falseButton.isEnabled = false
+    }
+
+    private fun enablingButtons(){
+        binding.trueButton.isEnabled = true
+        binding.falseButton.isEnabled = true
+    }
+
+    private fun isQuestionWasAnswered(){
+        if (quizViewModel.answersMap[quizViewModel.currentQuestionText] == true){
+            disablingButtons()
+        } else{
+            enablingButtons()
+        }
     }
 }
 
