@@ -4,13 +4,21 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.lifecycle.ViewModelProvider
 import com.bignerdrunch.android.geoname.databinding.ActivityCheatBinding
 
+private const val INSTANCE = "INSTANCE"
 class CheatActivity : AppCompatActivity() {
 
     // declare binding
     private lateinit var binding: ActivityCheatBinding
+
+
+    private val cheatActivityViewModel:CheatActivityViewModel by lazy {
+        ViewModelProvider(this).get(CheatActivityViewModel::class.java)
+    }
 
     private val resultIntent = Intent()
 
@@ -21,11 +29,16 @@ class CheatActivity : AppCompatActivity() {
         binding = ActivityCheatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (cheatActivityViewModel.showAnswerButtonWasPressed) callOnClick()
+
         binding.showAnswerButton.setOnClickListener{
-            val answerText = intent.getBooleanExtra(ANSWER,false)
-            binding.answerTextView.text = answerText.toString()
-            resultIntent.putExtra(WAS_CHECKED,true)
+            cheatActivityViewModel.showAnswerButtonWasPressed = true
+            callOnClick()
         }
+    }
+
+    private fun disablingButton(){
+        binding.showAnswerButton.isEnabled = false
     }
 
     override fun onBackPressed() {
@@ -33,9 +46,15 @@ class CheatActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    fun callOnClick(){
+        binding.answerTextView.text = intent.getBooleanExtra(ANSWER, false).toString()
+        resultIntent.putExtra(WAS_CHECKED, true)
+        disablingButton()
+    }
+
     class Contract:ActivityResultContract<Boolean,Boolean>(){
         override fun createIntent(context: Context, input: Boolean?) = Intent(context,CheatActivity::class.java).apply {
-            putExtra(CheatActivity.ANSWER,input)
+            putExtra(ANSWER,input)
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
