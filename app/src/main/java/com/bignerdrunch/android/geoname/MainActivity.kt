@@ -1,8 +1,13 @@
 package com.bignerdrunch.android.geoname
 
+import android.app.ActivityOptions
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bignerdrunch.android.geoname.databinding.ActivityMainBinding
 
@@ -24,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         isQuestionWasAnswered()
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,8 +67,10 @@ class MainActivity : AppCompatActivity() {
             isQuestionWasAnswered()
         }
 
-        binding.cheatButton.setOnClickListener{
-            cheatActivityLauncher.launch(quizViewModel.currentQuestionAnswer)
+        binding.cheatButton.setOnClickListener{ view->
+            val options : ActivityOptionsCompat =
+                ActivityOptionsCompat.makeClipRevealAnimation(view,0,0,view.width,view.height)
+            cheatActivityLauncher.launch(quizViewModel.currentQuestionAnswer,options)
         }
 
         updateQuestion()
